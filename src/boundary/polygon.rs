@@ -16,6 +16,7 @@ impl Polygon {
     }
 
     pub fn signed_distance(&self, pos: Vector2<f32>) -> f32 {
+        // FIXME: this algorithm only works for convex polygons :(
         let mut dist = f32::NEG_INFINITY;
         for (line_1, line_2) in self.sides() {
             let line_dist = utils::signed_distance_to_line(pos, line_1, line_2);
