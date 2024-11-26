@@ -1,17 +1,25 @@
-use std::ops::Deref;
+use std::f32;
 
 use anyhow::anyhow;
 use nalgebra::Vector2;
 
 use super::{ConvexShape, Shape};
 
+pub trait Polygon: Shape {
+    fn density_at(&self, point: Vector2<f32>) -> f32;
+
+    fn density(&self) -> f32 {
+        self.density_at(Vector2::zeros())
+    }
+}
+
 /// A shape consisting of three or more vertices, connected by straight edges.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Polygon<L = Vec<Vector2<f32>>> {
+pub struct ComplexPolygon<L = Vec<Vector2<f32>>> {
     vertices: L,
 }
 
-impl<L> Polygon<L>
+impl<L> ComplexPolygon<L>
 where
     L: AsRef<[Vector2<f32>]>,
 {
@@ -26,7 +34,24 @@ where
     }
 }
 
-impl<L> Shape for Polygon<L>
+impl<L> Polygon for ComplexPolygon<L>
+where
+    L: Clone + AsRef<[Vector2<f32>]> + AsMut<[Vector2<f32>]>,
+{
+    fn density_at(&self, point: Vector2<f32>) -> f32 {
+        let mut angle_sum: f32 = 0.0;
+        let mut prev_vertex_normal = (self.vertices.as_ref().last().unwrap() - point).normalize();
+        for vertex in self.vertices.as_ref() {
+            let vertex_normal = (vertex - point).normalize();
+            let angle = f32::acos(Vector2::dot(&vertex_normal, &prev_vertex_normal));
+            prev_vertex_normal = vertex_normal;
+            angle_sum += angle;
+        }
+        angle_sum / f32::consts::TAU
+    }
+}
+
+impl<L> Shape for ComplexPolygon<L>
 where
     L: Clone + AsRef<[Vector2<f32>]> + AsMut<[Vector2<f32>]>,
 {
@@ -43,8 +68,8 @@ where
             .sqrt()
     }
 
-    fn contains(&self, _point: Vector2<f32>) -> bool {
-        todo!()
+    fn contains(&self, point: Vector2<f32>) -> bool {
+        self.density_at(point) != 0.0
     }
 
     fn convex_hull(&self) -> Self::ConvexHull {
@@ -56,18 +81,10 @@ where
     }
 }
 
-pub type NGon<const N: usize> = Polygon<[Vector2<f32>; N]>;
+pub type ComplexNGon<const N: usize> = ComplexPolygon<[Vector2<f32>; N]>;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct SimplePolygon<L = Vec<Vector2<f32>>>(Polygon<L>);
-
-impl<L> Deref for SimplePolygon<L> {
-    type Target = Polygon<L>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
+pub struct SimplePolygon<L = Vec<Vector2<f32>>>(ComplexPolygon<L>);
 
 impl<L> Shape for SimplePolygon<L>
 where
@@ -96,14 +113,6 @@ pub type SimpleNGon<const N: usize> = SimplePolygon<[Vector2<f32>; N]>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ConvexPolygon<L = Vec<Vector2<f32>>>(SimplePolygon<L>);
-
-impl<L> Deref for ConvexPolygon<L> {
-    type Target = SimplePolygon<L>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
 
 impl<L> Shape for ConvexPolygon<L>
 where
