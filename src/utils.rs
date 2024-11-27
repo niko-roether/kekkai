@@ -1,10 +1,14 @@
 use nalgebra::Vector2;
 
-pub fn signed_distance_to_line(
+pub fn distance_to_line_segment(
     point: Vector2<f32>,
-    line_1: Vector2<f32>,
-    line_2: Vector2<f32>,
+    start: Vector2<f32>,
+    end: Vector2<f32>,
 ) -> f32 {
-    let line_diff = line_2 - line_1;
-    (line_diff.perp(&point) + line_2.perp(&line_1)) / line_diff.magnitude()
+    let segment_vec = end - start;
+    let dir_vec = segment_vec / segment_vec.magnitude_squared();
+    let interpolation = (point - start).dot(&dir_vec);
+    let clamped_interpolation = interpolation.clamp(0.0, 1.0);
+    let closest_point = start + clamped_interpolation * segment_vec;
+    (point - closest_point).magnitude()
 }

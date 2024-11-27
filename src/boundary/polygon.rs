@@ -3,11 +3,29 @@ use std::{iter, slice};
 
 use nalgebra::Vector2;
 
-use crate::utils;
+use crate::utils::{self, distance_to_line_segment};
 
 #[derive(Debug, Clone)]
 pub struct Polygon {
     vertices: Vec<Vector2<f32>>,
+}
+
+fn winding_number_contribution(pos: Vector2<f32>, start: Vector2<f32>, end: Vector2<f32>) -> i32 {
+    let interpolation = (pos.y - start.y) / (end.y - start.y);
+    if !(0.0..=1.0).contains(&interpolation) {
+        return 0;
+    }
+
+    let intersection = start + interpolation * (end - start);
+    if intersection.x < pos.x {
+        return 0;
+    }
+
+    if start.y < end.y {
+        1
+    } else {
+        -1
+    }
 }
 
 impl Polygon {
@@ -16,13 +34,18 @@ impl Polygon {
     }
 
     pub fn signed_distance(&self, pos: Vector2<f32>) -> f32 {
-        // FIXME: this algorithm only works for convex polygons :(
-        let mut dist = f32::NEG_INFINITY;
-        for (line_1, line_2) in self.sides() {
-            let line_dist = utils::signed_distance_to_line(pos, line_1, line_2);
-            dist = f32::max(dist, line_dist);
+        let mut unsinged_dist = f32::INFINITY;
+        let mut winding_number = 0_i32;
+        for (start, end) in self.sides() {
+            winding_number += winding_number_contribution(pos, start, end);
+            unsinged_dist = f32::min(unsinged_dist, distance_to_line_segment(pos, start, end));
         }
-        dist
+
+        if winding_number == 0 {
+            unsinged_dist
+        } else {
+            -unsinged_dist
+        }
     }
 
     fn sides(&self) -> impl Iterator<Item = (Vector2<f32>, Vector2<f32>)> + '_ {
