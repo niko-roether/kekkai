@@ -3,7 +3,7 @@ use std::{iter, slice};
 
 use nalgebra::Vector2;
 
-use crate::utils::{self, distance_to_line_segment};
+use crate::utils::distance_to_line_segment;
 
 #[derive(Debug, Clone)]
 pub struct Polygon {
@@ -29,8 +29,10 @@ fn winding_number_contribution(pos: Vector2<f32>, start: Vector2<f32>, end: Vect
 }
 
 impl Polygon {
-    pub fn new(vertices: Vec<Vector2<f32>>) -> Self {
-        Self { vertices }
+    pub fn new() -> Self {
+        Self {
+            vertices: Vec::new(),
+        }
     }
 
     pub fn signed_distance(&self, pos: Vector2<f32>) -> f32 {
@@ -53,9 +55,15 @@ impl Polygon {
     }
 }
 
+impl From<Vec<Vector2<f32>>> for Polygon {
+    fn from(vertices: Vec<Vector2<f32>>) -> Self {
+        Self { vertices }
+    }
+}
+
 impl FromIterator<Vector2<f32>> for Polygon {
     fn from_iter<T: IntoIterator<Item = Vector2<f32>>>(iter: T) -> Self {
-        Self::new(iter.into_iter().collect())
+        Self::from(iter.into_iter().collect::<Vec<_>>())
     }
 }
 
@@ -97,5 +105,62 @@ impl<'a> Iterator for LineIterator<'a> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use nalgebra::vector;
+
+    use super::*;
+
+    #[test]
+    fn should_return_correct_signed_distances_for_convex_polygons() {
+        // when
+        let polygon = Polygon::from(vec![
+            vector![-2.0, -1.0],
+            vector![2.0, -4.0],
+            vector![5.0, -1.0],
+            vector![3.0, 3.0],
+            vector![-1.0, 2.0],
+        ]);
+
+        // then
+        assert_eq!(polygon.signed_distance(vector![1.0, 4.0]), 1.4552137);
+        assert_eq!(polygon.signed_distance(vector![3.0, -3.0]), 0.0);
+        assert_eq!(polygon.signed_distance(vector![2.0, 1.0]), -1.6977493);
+    }
+
+    #[test]
+    fn should_return_correct_signed_distances_for_simple_polygons() {
+        // when
+        let polygon = Polygon::from(vec![
+            vector![-2.0, -1.0],
+            vector![2.0, -3.0],
+            vector![4.0, 1.0],
+            vector![1.0, 0.0],
+            vector![-1.0, 3.0],
+        ]);
+
+        // then
+        assert_eq!(polygon.signed_distance(vector![1.0, 1.0]), 0.5547002);
+        assert_eq!(polygon.signed_distance(vector![3.0, -1.0]), 0.0);
+        assert_eq!(polygon.signed_distance(vector![-1.0, 1.0]), -0.4850712);
+    }
+
+    #[test]
+    fn should_return_correct_signed_distances_for_complex_polygons() {
+        // when
+        let polygon = Polygon::from(vec![
+            vector![-2.0, 0.0],
+            vector![2.0, -2.0],
+            vector![2.0, 0.0],
+            vector![-2.0, -2.0],
+        ]);
+
+        // then
+        assert_eq!(polygon.signed_distance(vector![0.0, 0.0]), 0.8944272);
+        assert_eq!(polygon.signed_distance(vector![0.0, -1.0]), 0.0);
+        assert_eq!(polygon.signed_distance(vector![-1.0, -1.0]), -0.4472136);
     }
 }
