@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use nalgebra::{Affine2, Vector2};
+use nalgebra::{Similarity2, Vector2};
 
 use super::Boundary;
 
@@ -16,7 +16,7 @@ impl<'a> Composite<'a> {
         }
     }
 
-    pub fn add_component(&mut self, boundary: &'a Boundary<'a>, transform: Affine2<f32>) {
+    pub fn add_component(&mut self, boundary: &'a Boundary<'a>, transform: Similarity2<f32>) {
         self.components.push(CompositeComponent {
             boundary: Cow::Borrowed(boundary),
             inverse_transform: transform.inverse(),
@@ -43,5 +43,5 @@ impl<'a> Default for Composite<'a> {
 #[derive(Debug, Clone)]
 struct CompositeComponent<'a> {
     boundary: Cow<'a, Boundary<'a>>,
-    inverse_transform: Affine2<f32>,
+    inverse_transform: Similarity2<f32>,
 }

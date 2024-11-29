@@ -29,6 +29,10 @@ impl Ellipse {
         Self::new(focus_1, focus_2, major_radius)
     }
 
+    pub fn from_radii_centered(minor_radius: f32, major_radius: f32, rotation: f32) -> Self {
+        Self::from_radii(vector![0.0, 0.0], minor_radius, major_radius, rotation)
+    }
+
     pub fn signed_distance(&self, pos: Vector2<f32>) -> f32 {
         let avg_dist = ((pos - self.focus_1).magnitude() + (pos - self.focus_2).magnitude()) / 2.0;
         avg_dist - self.average_distance

@@ -1,7 +1,7 @@
 use core::f32;
 use std::{iter, slice};
 
-use nalgebra::Vector2;
+use nalgebra::{vector, Affine2, Isometry2, Similarity2, UnitComplex, Vector2};
 
 use crate::utils::distance_to_line_segment;
 
@@ -35,6 +35,16 @@ impl Polygon {
         }
     }
 
+    pub fn new_rect(center: Vector2<f32>, width: f32, height: f32, rotation: f32) -> Self {
+        let rotation = UnitComplex::from_angle(rotation);
+        Self::from(vec![
+            center + rotation * vector![width / 2.0, height / 2.0],
+            center + rotation * vector![-width / 2.0, height / 2.0],
+            center + rotation * vector![-width / 2.0, -height / 2.0],
+            center + rotation * vector![width / 2.0, -height / 2.0],
+        ])
+    }
+
     pub fn signed_distance(&self, pos: Vector2<f32>) -> f32 {
         let mut unsinged_dist = f32::INFINITY;
         let mut winding_number = 0_i32;
@@ -52,6 +62,12 @@ impl Polygon {
 
     fn sides(&self) -> impl Iterator<Item = (Vector2<f32>, Vector2<f32>)> + '_ {
         LineIterator::new(&self.vertices)
+    }
+}
+
+impl Default for Polygon {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -113,6 +129,23 @@ mod tests {
     use nalgebra::vector;
 
     use super::*;
+
+    #[test]
+    fn should_construct_rect() {
+        // when
+        let polygon = Polygon::new_rect(vector![2.0, 1.0], 6.0, 4.0, f32::consts::TAU / 8.0);
+
+        // then
+        assert_eq!(
+            polygon.vertices,
+            vec![
+                vector![2.7071066, 4.535534],
+                vector![-1.5355339, 0.2928933],
+                vector![1.2928933, -2.535534],
+                vector![5.535534, 1.7071067],
+            ]
+        )
+    }
 
     #[test]
     fn should_return_correct_signed_distances_for_convex_polygons() {
