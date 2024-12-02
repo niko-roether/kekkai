@@ -1,3 +1,4 @@
+pub mod shape;
 pub mod transform;
 mod vector;
 
