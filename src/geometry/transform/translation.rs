@@ -2,6 +2,8 @@ use std::ops::{Mul, MulAssign};
 
 use crate::{geometry::Vector, utils::approx::ApproxEq};
 
+use super::Transform;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Translation(Vector);
 
@@ -72,6 +74,8 @@ impl Mul<Vector> for Translation {
         self.apply(rhs)
     }
 }
+
+impl Transform for Translation {}
 
 #[cfg(test)]
 mod tests {

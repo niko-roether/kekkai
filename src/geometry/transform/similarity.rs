@@ -5,7 +5,7 @@ use crate::{
     utils::approx::{approx_eq, ApproxEq},
 };
 
-use super::{ScaledRotation, Translation};
+use super::{ScaledRotation, Transform, Translation};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Similarity {
@@ -98,6 +98,8 @@ impl Mul<Vector> for &Similarity {
         self.apply(rhs)
     }
 }
+
+impl Transform for &Similarity {}
 
 #[cfg(test)]
 mod tests {

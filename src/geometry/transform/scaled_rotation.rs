@@ -5,6 +5,8 @@ use crate::{
     utils::approx::ApproxEq,
 };
 
+use super::Transform;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScaledRotation(Vector);
 
@@ -79,6 +81,8 @@ impl Mul<Vector> for ScaledRotation {
         self.apply(rhs)
     }
 }
+
+impl Transform for ScaledRotation {}
 
 #[cfg(test)]
 mod tests {
