@@ -8,8 +8,6 @@ pub use scaled_rotation::*;
 pub use similarity::*;
 pub use translation::*;
 
-use crate::utils::approx::ApproxEq;
-
 use super::Vector;
 
-pub trait Transform: ApproxEq + Mul<Self> + Mul<Vector> + Sized {}
+pub trait Transform: Clone + Mul<Vector, Output = Vector> + Sized {}
