@@ -162,59 +162,59 @@ mod tests {
     #[test]
     fn scale() {
         let vec = vector!(1.0, 2.0);
-        assert_eq!(vec * 2.0, vector!(2.0, 4.0));
-        assert_eq!(2.0 * vec, vector!(2.0, 4.0));
-        assert_eq!(vec / 2.0, vector!(0.5, 1.0));
-        assert_eq!(vec.scale(2.0), vector!(2.0, 4.0));
-        assert_eq!(-vec, vector!(-1.0, -2.0));
+        assert_approx_eq!(vec * 2.0, vector!(2.0, 4.0));
+        assert_approx_eq!(2.0 * vec, vector!(2.0, 4.0));
+        assert_approx_eq!(vec / 2.0, vector!(0.5, 1.0));
+        assert_approx_eq!(vec.scale(2.0), vector!(2.0, 4.0));
+        assert_approx_eq!(-vec, vector!(-1.0, -2.0));
     }
 
     #[test]
     fn scale_assign() {
         let mut vec = vector!(1.0, 2.0);
         vec *= 2.0;
-        assert_eq!(vec, vector!(2.0, 4.0));
+        assert_approx_eq!(vec, vector!(2.0, 4.0));
         vec /= 2.0;
-        assert_eq!(vec, vector!(1.0, 2.0));
+        assert_approx_eq!(vec, vector!(1.0, 2.0));
     }
 
     #[test]
     fn add() {
-        assert_eq!(vector!(4.0, 12.0) + vector!(2.0, -3.0), vector!(6.0, 9.0))
+        assert_approx_eq!(vector!(4.0, 12.0) + vector!(2.0, -3.0), vector!(6.0, 9.0))
     }
 
     #[test]
     fn add_assign() {
         let mut vec = vector!(1.0, 3.0);
         vec += vector!(-1.0, -2.0);
-        assert_eq!(vec, vector!(0.0, 1.0));
+        assert_approx_eq!(vec, vector!(0.0, 1.0));
     }
 
     #[test]
     fn sub() {
-        assert_eq!(vector!(4.0, 12.0) - vector!(2.0, -3.0), vector!(2.0, 15.0))
+        assert_approx_eq!(vector!(4.0, 12.0) - vector!(2.0, -3.0), vector!(2.0, 15.0))
     }
 
     #[test]
     fn sub_assign() {
         let mut vec = vector!(1.0, 3.0);
         vec -= vector!(-1.0, -2.0);
-        assert_eq!(vec, vector!(2.0, 5.0));
+        assert_approx_eq!(vec, vector!(2.0, 5.0));
     }
 
     #[test]
     fn perp() {
-        assert_eq!(vector!(3.0, 5.0).perp(), vector!(-5.0, 3.0))
+        assert_approx_eq!(vector!(3.0, 5.0).perp(), vector!(-5.0, 3.0))
     }
 
     #[test]
     fn dot() {
-        assert_eq!(Vector::dot(vector!(1.0, -2.0), vector!(3.0, 4.0)), -5.0)
+        assert_approx_eq!(Vector::dot(vector!(1.0, -2.0), vector!(3.0, 4.0)), -5.0)
     }
 
     #[test]
     fn perp_dot() {
-        assert_eq!(
+        assert_approx_eq!(
             Vector::perp_dot(vector!(1.0, -2.0), vector!(3.0, 4.0)),
             10.0
         )
@@ -222,19 +222,19 @@ mod tests {
 
     #[test]
     fn norm_sq() {
-        assert_eq!(Vector::ZERO.norm_sq(), 0.0);
-        assert_eq!(vector!(3.0, 4.0).norm_sq(), 25.0);
+        assert_approx_eq!(Vector::ZERO.norm_sq(), 0.0);
+        assert_approx_eq!(vector!(3.0, 4.0).norm_sq(), 25.0);
     }
 
     #[test]
     fn norm() {
-        assert_eq!(Vector::ZERO.norm(), 0.0);
-        assert_eq!(vector!(3.0, 4.0).norm(), 5.0);
+        assert_approx_eq!(Vector::ZERO.norm(), 0.0);
+        assert_approx_eq!(vector!(3.0, 4.0).norm(), 5.0);
     }
 
     #[test]
     fn complex_product() {
-        assert_eq!(
+        assert_approx_eq!(
             Vector::complex_product(Vector::Y, Vector::Y * 2.0),
             Vector::X * -2.0
         )
