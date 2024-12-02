@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use crate::utils::approx::{approx_eq, ApproxEq};
 
@@ -81,6 +81,12 @@ impl Mul<Scalar> for Vector {
     }
 }
 
+impl MulAssign<Scalar> for Vector {
+    fn mul_assign(&mut self, rhs: Scalar) {
+        *self = *self * rhs;
+    }
+}
+
 impl Mul<Vector> for Scalar {
     type Output = Vector;
 
@@ -94,6 +100,12 @@ impl Div<Scalar> for Vector {
 
     fn div(self, rhs: Scalar) -> Self::Output {
         self.scale(1.0 / rhs)
+    }
+}
+
+impl DivAssign<Scalar> for Vector {
+    fn div_assign(&mut self, rhs: Scalar) {
+        *self = *self / rhs;
     }
 }
 
@@ -113,11 +125,23 @@ impl Add<Vector> for Vector {
     }
 }
 
+impl AddAssign<Vector> for Vector {
+    fn add_assign(&mut self, rhs: Vector) {
+        *self = *self + rhs;
+    }
+}
+
 impl Sub<Vector> for Vector {
     type Output = Vector;
 
     fn sub(self, rhs: Vector) -> Self::Output {
         self.sub(rhs)
+    }
+}
+
+impl SubAssign<Vector> for Vector {
+    fn sub_assign(&mut self, rhs: Vector) {
+        *self = *self - rhs;
     }
 }
 
@@ -146,13 +170,36 @@ mod tests {
     }
 
     #[test]
+    fn scale_assign() {
+        let mut vec = vector!(1.0, 2.0);
+        vec *= 2.0;
+        assert_eq!(vec, vector!(2.0, 4.0));
+        vec /= 2.0;
+        assert_eq!(vec, vector!(1.0, 2.0));
+    }
+
+    #[test]
     fn add() {
         assert_eq!(vector!(4.0, 12.0) + vector!(2.0, -3.0), vector!(6.0, 9.0))
     }
 
     #[test]
+    fn add_assign() {
+        let mut vec = vector!(1.0, 3.0);
+        vec += vector!(-1.0, -2.0);
+        assert_eq!(vec, vector!(0.0, 1.0));
+    }
+
+    #[test]
     fn sub() {
         assert_eq!(vector!(4.0, 12.0) - vector!(2.0, -3.0), vector!(2.0, 15.0))
+    }
+
+    #[test]
+    fn sub_assign() {
+        let mut vec = vector!(1.0, 3.0);
+        vec -= vector!(-1.0, -2.0);
+        assert_eq!(vec, vector!(2.0, 5.0));
     }
 
     #[test]
