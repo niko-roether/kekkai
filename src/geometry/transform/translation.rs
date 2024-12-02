@@ -14,7 +14,7 @@ impl Translation {
         Self(vector)
     }
 
-    pub const fn vector(self) -> Vector {
+    pub const fn as_vector(self) -> Vector {
         self.0
     }
 
@@ -29,7 +29,7 @@ impl Translation {
 
 impl From<Translation> for Vector {
     fn from(value: Translation) -> Self {
-        value.vector()
+        value.as_vector()
     }
 }
 

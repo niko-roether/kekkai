@@ -47,7 +47,7 @@ impl Similarity {
     }
 
     pub const fn translation_vector(&self) -> Vector {
-        self.translation.vector()
+        self.translation.as_vector()
     }
 
     pub const fn compose(&self, other: &Self) -> Self {
