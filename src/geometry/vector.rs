@@ -15,47 +15,38 @@ impl Vector {
     pub const X: Self = vector!(1.0, 0.0);
     pub const Y: Self = vector!(0.0, 1.0);
 
-    #[inline]
     pub const fn new(x: Scalar, y: Scalar) -> Self {
         Self { x, y }
     }
 
-    #[inline]
     pub const fn scale(self, scalar: Scalar) -> Self {
         vector!(self.x * scalar, self.y * scalar)
     }
 
-    #[inline]
     pub const fn add(self, other: Vector) -> Self {
         vector!(self.x + other.x, self.y + other.y)
     }
 
-    #[inline]
     pub const fn sub(self, other: Vector) -> Self {
         vector!(self.x - other.x, self.y - other.y)
     }
 
-    #[inline]
     pub const fn perp(self) -> Vector {
         vector!(-self.y, self.x)
     }
 
-    #[inline]
     pub const fn dot(self, other: Vector) -> Scalar {
         self.x * other.x + self.y * other.y
     }
 
-    #[inline]
     pub const fn perp_dot(self, other: Vector) -> Scalar {
         self.perp().dot(other)
     }
 
-    #[inline]
     pub const fn norm_sq(self) -> Scalar {
         self.x * self.x + self.y * self.y
     }
 
-    #[inline]
     pub fn norm(self) -> Scalar {
         self.norm_sq().sqrt()
     }
@@ -78,7 +69,6 @@ impl ApproxEq for Vector {
 impl Mul<Scalar> for Vector {
     type Output = Vector;
 
-    #[inline]
     fn mul(self, rhs: Scalar) -> Self::Output {
         self.scale(rhs)
     }
@@ -87,7 +77,6 @@ impl Mul<Scalar> for Vector {
 impl Mul<Vector> for Scalar {
     type Output = Vector;
 
-    #[inline]
     fn mul(self, rhs: Vector) -> Self::Output {
         rhs.scale(self)
     }
@@ -96,7 +85,6 @@ impl Mul<Vector> for Scalar {
 impl Div<Scalar> for Vector {
     type Output = Vector;
 
-    #[inline]
     fn div(self, rhs: Scalar) -> Self::Output {
         self.scale(1.0 / rhs)
     }
@@ -105,7 +93,6 @@ impl Div<Scalar> for Vector {
 impl Neg for Vector {
     type Output = Vector;
 
-    #[inline]
     fn neg(self) -> Self::Output {
         self.scale(-1.0)
     }
@@ -114,7 +101,6 @@ impl Neg for Vector {
 impl Add<Vector> for Vector {
     type Output = Vector;
 
-    #[inline]
     fn add(self, rhs: Vector) -> Self::Output {
         self.add(rhs)
     }
@@ -123,7 +109,6 @@ impl Add<Vector> for Vector {
 impl Sub<Vector> for Vector {
     type Output = Vector;
 
-    #[inline]
     fn sub(self, rhs: Vector) -> Self::Output {
         self.sub(rhs)
     }
