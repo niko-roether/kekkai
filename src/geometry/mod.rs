@@ -1,4 +1,4 @@
-mod transform;
+pub mod transform;
 mod vector;
 
 #[cfg(feature = "f32")]
