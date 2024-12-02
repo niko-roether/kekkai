@@ -66,10 +66,10 @@ impl Default for Vector {
 }
 
 impl ApproxEq for Vector {
-    type Tolerance = <Scalar as ApproxEq>::Tolerance;
+    type Epsilon = <Scalar as ApproxEq>::Epsilon;
 
-    fn approx_eq(&self, other: &Self, tolerance: Self::Tolerance) -> bool {
-        approx_eq!(self.x, other.x, tolerance) && approx_eq!(self.y, other.y, tolerance)
+    fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        approx_eq!(self.x, other.x, epsilon) && approx_eq!(self.y, other.y, epsilon)
     }
 }
 

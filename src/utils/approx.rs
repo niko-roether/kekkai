@@ -1,65 +1,67 @@
 #![allow(unused_macros, dead_code)]
 
-use std::ops;
+use std::fmt::Display;
 
-pub(crate) trait Tolerance: Copy {
-    fn range_for(self, value: Self) -> ops::RangeInclusive<Self>;
+pub(crate) trait Epsilon: Copy + Display {
+    fn default() -> Self;
 }
 
-impl Tolerance for f32 {
-    fn range_for(self, value: Self) -> ops::RangeInclusive<Self> {
-        let deviation = value.log2().floor().exp2() * f32::EPSILON * self;
-        (value - deviation)..=(value + deviation)
+impl Epsilon for f32 {
+    fn default() -> Self {
+        f32::EPSILON
     }
 }
 
-impl Tolerance for f64 {
-    fn range_for(self, value: Self) -> ops::RangeInclusive<Self> {
-        let deviation = value.log2().floor().exp2() * f64::EPSILON * self;
-        (value - deviation)..=(value + deviation)
+impl Epsilon for f64 {
+    fn default() -> Self {
+        f64::EPSILON
     }
 }
 
 pub(crate) trait ApproxEq {
-    type Tolerance: Tolerance;
+    type Epsilon: Epsilon;
 
-    fn approx_eq(&self, other: &Self, tolerance: Self::Tolerance) -> bool;
+    fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool;
 
-    fn approx_ne(&self, other: &Self, tolerance: Self::Tolerance) -> bool {
-        !self.approx_eq(other, tolerance)
+    fn approx_ne(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        !self.approx_eq(other, epsilon)
     }
 }
 
 impl ApproxEq for f32 {
-    type Tolerance = f32;
+    type Epsilon = f32;
 
-    fn approx_eq(&self, other: &Self, tolerance: Self::Tolerance) -> bool {
-        dbg!(tolerance.range_for(*self)).contains(other)
+    fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        (other - self).abs() <= epsilon
     }
 }
 
 impl ApproxEq for f64 {
-    type Tolerance = f64;
+    type Epsilon = f64;
 
-    fn approx_eq(&self, other: &Self, tolerance: Self::Tolerance) -> bool {
-        tolerance.range_for(*self).contains(other)
+    fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        (other - self).abs() <= epsilon
     }
 }
 
 impl<T: ApproxEq> ApproxEq for &T {
-    type Tolerance = T::Tolerance;
+    type Epsilon = T::Epsilon;
 
-    fn approx_eq(&self, other: &Self, tolerance: Self::Tolerance) -> bool {
-        (**self).approx_eq(&**other, tolerance)
+    fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
+        (**self).approx_eq(&**other, epsilon)
     }
 }
 
 macro_rules! approx_eq {
-    ($val1:expr, $val2:expr, $tolerance:expr) => {
-        $crate::utils::approx::ApproxEq::approx_eq(&$val1, &$val2, $tolerance)
+    ($val1:expr, $val2:expr, $epsilon:expr) => {
+        $crate::utils::approx::ApproxEq::approx_eq(&$val1, &$val2, $epsilon)
     };
     ($val1:expr, $val2:expr) => {
-        $crate::utils::approx::ApproxEq::approx_eq(&$val1, &$val2, 1.0)
+        $crate::utils::approx::ApproxEq::approx_eq(
+            &$val1,
+            &$val2,
+            $crate::utils::approx::Epsilon::default(),
+        )
     };
 }
 
@@ -67,11 +69,15 @@ macro_rules! approx_eq {
 pub(crate) use approx_eq;
 
 macro_rules! approx_ne {
-    ($val1:expr, $val2:expr, $tolerance:expr) => {
-        $crate::utils::approx::ApproxEq::approx_ne(&$val1, &$val2, $tolerance)
+    ($val1:expr, $val2:expr, $epsilon:expr) => {
+        $crate::utils::approx::ApproxEq::approx_ne(&$val1, &$val2, $epsilon)
     };
     ($val1:expr, $val2:expr) => {
-        $crate::utils::approx::ApproxEq::approx_ne(&$val1, &$val2, 1.0)
+        $crate::utils::approx::ApproxEq::approx_ne(
+            &$val1,
+            &$val2,
+            $crate::utils::approx::Epsilon::default(),
+        )
     };
 }
 
@@ -79,11 +85,18 @@ macro_rules! approx_ne {
 pub(crate) use approx_ne;
 
 macro_rules! assert_approx_eq {
-    ($val1:expr, $val2:expr, $tolerance:expr) => {
-        assert!($crate::utils::approx::approx_eq!($val1, $val2, $tolerance))
-    };
+    ($val1:expr, $val2:expr, $epsilon:expr) => {{
+        let epsilon = $epsilon;
+        if $crate::utils::approx::approx_ne!($val1, $val2, epsilon) {
+            panic!("Assertion failed: {:?} ≈ {:?} (±{})", $val1, $val2, epsilon)
+        }
+    }};
     ($val1:expr, $val2:expr) => {
-        assert!($crate::utils::approx::approx_eq!($val1, $val2))
+        $crate::utils::approx::assert_approx_eq!(
+            $val1,
+            $val2,
+            $crate::utils::approx::Epsilon::default()
+        )
     };
 }
 
@@ -91,11 +104,18 @@ macro_rules! assert_approx_eq {
 pub(crate) use assert_approx_eq;
 
 macro_rules! assert_approx_ne {
-    ($val1:expr, $val2:expr, $tolerance:expr) => {
-        assert!($crate::utils::approx::approx_ne!($val1, $val2, $tolerance))
-    };
+    ($val1:expr, $val2:expr, $epsilon:expr) => {{
+        let epsilon = $epsilon;
+        if $crate::utils::approx::approx_eq!($val1, $val2, epsilon) {
+            panic!("Assertion failed: {:?} ≉ {:?} (±{})", $val1, $val2, epsilon)
+        }
+    }};
     ($val1:expr, $val2:expr) => {
-        assert!($crate::utils::approx::approx_ne!($val1, $val2))
+        $crate::utils::approx::assert_approx_ne!(
+            $val1,
+            $val2,
+            $crate::utils::approx::Epsilon::default()
+        )
     };
 }
 
@@ -107,7 +127,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn f32_zero_tolerance() {
+    fn f32_zero_epsilon() {
         assert!(approx_eq!(1.0_f32, 1.0_f32, 0.0));
 
         assert!(approx_ne!(1.0_f32, 1.0_f32 + f32::EPSILON, 0.0));
@@ -115,7 +135,7 @@ mod tests {
     }
 
     #[test]
-    fn f32_default_tolerance() {
+    fn f32_default_epsilon() {
         assert!(approx_eq!(1.0_f32, 1.0_f32));
 
         assert!(approx_eq!(1.0_f32, 1.0_f32 + f32::EPSILON));
@@ -126,21 +146,45 @@ mod tests {
     }
 
     #[test]
-    fn f32_double_tolerance() {
+    fn f32_double_epsilon() {
         assert!(approx_eq!(1.0_f32, 1.0_f32, 2.0));
 
-        assert!(approx_eq!(1.0_f32, 1.0_f32 + f32::EPSILON, 2.0));
-        assert!(approx_eq!(1.0_f32, 1.0_f32 - f32::EPSILON, 2.0));
+        assert!(approx_eq!(
+            1.0_f32,
+            1.0_f32 + f32::EPSILON,
+            2.0 * f32::EPSILON
+        ));
+        assert!(approx_eq!(
+            1.0_f32,
+            1.0_f32 - f32::EPSILON,
+            2.0 * f32::EPSILON
+        ));
 
-        assert!(approx_eq!(1.0_f32, 1.0_f32 + 2.0 * f32::EPSILON, 2.0));
-        assert!(approx_eq!(1.0_f32, 1.0_f32 - 2.0 * f32::EPSILON, 2.0));
+        assert!(approx_eq!(
+            1.0_f32,
+            1.0_f32 + 2.0 * f32::EPSILON,
+            2.0 * f32::EPSILON
+        ));
+        assert!(approx_eq!(
+            1.0_f32,
+            1.0_f32 - 2.0 * f32::EPSILON,
+            2.0 * f32::EPSILON
+        ));
 
-        assert!(approx_ne!(1.0_f32, 1.0_f32 + 3.0 * f32::EPSILON, 2.0));
-        assert!(approx_ne!(1.0_f32, 1.0_f32 - 3.0 * f32::EPSILON, 2.0));
+        assert!(approx_ne!(
+            1.0_f32,
+            1.0_f32 + 3.0 * f32::EPSILON,
+            2.0 * f32::EPSILON
+        ));
+        assert!(approx_ne!(
+            1.0_f32,
+            1.0_f32 - 3.0 * f32::EPSILON,
+            2.0 * f32::EPSILON
+        ));
     }
 
     #[test]
-    fn f64_zero_tolerance() {
+    fn f64_zero_epsilon() {
         assert!(approx_eq!(1.0_f64, 1.0_f64, 0.0));
 
         assert!(approx_ne!(1.0_f64, 1.0_f64 + f64::EPSILON, 0.0));
@@ -148,7 +192,7 @@ mod tests {
     }
 
     #[test]
-    fn f64_default_tolerance() {
+    fn f64_default_epsilon() {
         assert!(approx_eq!(1.0_f64, 1.0_f64));
 
         assert!(approx_eq!(1.0_f64, 1.0_f64 + f64::EPSILON));
@@ -159,16 +203,40 @@ mod tests {
     }
 
     #[test]
-    fn f64_double_tolerance() {
+    fn f64_double_epsilon() {
         assert!(approx_eq!(1.0_f64, 1.0_f64, 2.0));
 
-        assert!(approx_eq!(1.0_f64, 1.0_f64 + f64::EPSILON, 2.0));
-        assert!(approx_eq!(1.0_f64, 1.0_f64 - f64::EPSILON, 2.0));
+        assert!(approx_eq!(
+            1.0_f64,
+            1.0_f64 + f64::EPSILON,
+            2.0 * f64::EPSILON
+        ));
+        assert!(approx_eq!(
+            1.0_f64,
+            1.0_f64 - f64::EPSILON,
+            2.0 * f64::EPSILON
+        ));
 
-        assert!(approx_eq!(1.0_f64, 1.0_f64 + 2.0 * f64::EPSILON, 2.0));
-        assert!(approx_eq!(1.0_f64, 1.0_f64 - 2.0 * f64::EPSILON, 2.0));
+        assert!(approx_eq!(
+            1.0_f64,
+            1.0_f64 + 2.0 * f64::EPSILON,
+            2.0 * f64::EPSILON
+        ));
+        assert!(approx_eq!(
+            1.0_f64,
+            1.0_f64 - 2.0 * f64::EPSILON,
+            2.0 * f64::EPSILON
+        ));
 
-        assert!(approx_ne!(1.0_f64, 1.0_f64 + 3.0 * f64::EPSILON, 2.0));
-        assert!(approx_ne!(1.0_f64, 1.0_f64 - 3.0 * f64::EPSILON, 2.0));
+        assert!(approx_ne!(
+            1.0_f64,
+            1.0_f64 + 3.0 * f64::EPSILON,
+            2.0 * f64::EPSILON
+        ));
+        assert!(approx_ne!(
+            1.0_f64,
+            1.0_f64 - 3.0 * f64::EPSILON,
+            2.0 * f64::EPSILON
+        ));
     }
 }
