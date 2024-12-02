@@ -50,6 +50,13 @@ impl Vector {
     pub fn norm(self) -> Scalar {
         self.norm_sq().sqrt()
     }
+
+    pub const fn complex_product(self, other: Vector) -> Vector {
+        vector!(
+            self.x * other.x - self.y * other.y,
+            self.x * other.y + self.y * other.x
+        )
+    }
 }
 
 impl Default for Vector {
@@ -176,6 +183,14 @@ mod tests {
     fn norm() {
         assert_eq!(Vector::ZERO.norm(), 0.0);
         assert_eq!(vector!(3.0, 4.0).norm(), 5.0);
+    }
+
+    #[test]
+    fn complex_product() {
+        assert_eq!(
+            Vector::complex_product(Vector::Y, Vector::Y * 2.0),
+            Vector::X * -2.0
+        )
     }
 
     #[test]
