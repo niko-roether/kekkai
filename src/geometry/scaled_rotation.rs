@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{Mul, MulAssign};
 
 use crate::utils::approx::ApproxEq;
 
@@ -65,6 +65,12 @@ impl Mul<ScaledRotation> for ScaledRotation {
     }
 }
 
+impl MulAssign<ScaledRotation> for ScaledRotation {
+    fn mul_assign(&mut self, rhs: ScaledRotation) {
+        *self = *self * rhs
+    }
+}
+
 impl Mul<Vector> for ScaledRotation {
     type Output = Vector;
 
@@ -104,6 +110,17 @@ mod tests {
 
         assert_approx_eq!(
             t1 * t2,
+            ScaledRotation::from_parts(6.0, 0.25 * scalar::consts::TAU)
+        );
+    }
+
+    #[test]
+    fn compose_assign() {
+        let mut t = ScaledRotation::from_parts(2.0, 0.5 * scalar::consts::TAU);
+        t *= ScaledRotation::from_parts(3.0, -0.25 * scalar::consts::TAU);
+
+        assert_approx_eq!(
+            t,
             ScaledRotation::from_parts(6.0, 0.25 * scalar::consts::TAU)
         );
     }

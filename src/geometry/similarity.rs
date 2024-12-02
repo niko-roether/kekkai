@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{Mul, MulAssign};
 
 use crate::utils::approx::{approx_eq, ApproxEq};
 
@@ -82,6 +82,12 @@ impl Mul<&Similarity> for &Similarity {
     }
 }
 
+impl MulAssign<&Similarity> for Similarity {
+    fn mul_assign(&mut self, rhs: &Similarity) {
+        *self = &*self * rhs
+    }
+}
+
 impl Mul<Vector> for &Similarity {
     type Output = Vector;
 
@@ -113,6 +119,17 @@ mod tests {
 
         assert_approx_eq!(
             &sim_1 * &sim_2,
+            Similarity::from_parts(6.0, -0.25 * scalar::consts::TAU, vector!(1.0, 4.0))
+        );
+    }
+
+    #[test]
+    fn compose_assign() {
+        let mut sim = Similarity::from_parts(3.0, 0.25 * scalar::consts::TAU, vector!(2.0, 3.0));
+        sim *= &Similarity::from_parts(2.0, -0.5 * scalar::consts::TAU, vector!(-1.0, 1.0));
+
+        assert_approx_eq!(
+            sim,
             Similarity::from_parts(6.0, -0.25 * scalar::consts::TAU, vector!(1.0, 4.0))
         );
     }

@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{Mul, MulAssign};
 
 use crate::utils::approx::ApproxEq;
 
@@ -61,6 +61,12 @@ impl Mul<Translation> for Translation {
     }
 }
 
+impl MulAssign<Translation> for Translation {
+    fn mul_assign(&mut self, rhs: Translation) {
+        *self = *self * rhs
+    }
+}
+
 impl Mul<Vector> for Translation {
     type Output = Vector;
 
@@ -89,5 +95,12 @@ mod tests {
             translation_1 * translation_2,
             Translation::from(vector!(-1.0, 7.0))
         );
+    }
+
+    #[test]
+    fn compose_assign() {
+        let mut translation = Translation::from(vector!(2.0, 3.0));
+        translation *= Translation::from(vector!(-3.0, 4.0));
+        assert_approx_eq!(translation, Translation::from(vector!(-1.0, 7.0)));
     }
 }
