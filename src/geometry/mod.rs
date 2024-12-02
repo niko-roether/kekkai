@@ -1,4 +1,5 @@
 mod scaled_rotation;
+mod similarity;
 mod translation;
 mod vector;
 
@@ -17,5 +18,6 @@ pub mod scalar {
 pub use scalar::Scalar;
 
 pub use scaled_rotation::*;
+pub use similarity::*;
 pub use translation::*;
 pub use vector::*;
