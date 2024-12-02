@@ -1,3 +1,4 @@
+mod scaled_rotation;
 mod vector;
 
 #[cfg(feature = "f32")]
@@ -13,4 +14,6 @@ pub mod scalar {
 }
 
 pub use scalar::Scalar;
+
+pub use scaled_rotation::*;
 pub use vector::*;
