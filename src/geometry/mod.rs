@@ -1,6 +1,4 @@
-mod scaled_rotation;
-mod similarity;
-mod translation;
+mod transform;
 mod vector;
 
 #[cfg(feature = "f32")]
@@ -17,7 +15,4 @@ pub mod scalar {
 
 pub use scalar::Scalar;
 
-pub use scaled_rotation::*;
-pub use similarity::*;
-pub use translation::*;
 pub use vector::*;

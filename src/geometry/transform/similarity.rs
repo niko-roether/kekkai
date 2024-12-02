@@ -1,8 +1,11 @@
 use std::ops::{Mul, MulAssign};
 
-use crate::utils::approx::{approx_eq, ApproxEq};
+use crate::{
+    geometry::{Scalar, Vector},
+    utils::approx::{approx_eq, ApproxEq},
+};
 
-use super::{Scalar, ScaledRotation, Translation, Vector};
+use super::{ScaledRotation, Translation};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Similarity {

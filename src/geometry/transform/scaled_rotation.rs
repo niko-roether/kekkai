@@ -1,8 +1,9 @@
 use std::ops::{Mul, MulAssign};
 
-use crate::utils::approx::ApproxEq;
-
-use super::{vector, Scalar, Vector};
+use crate::{
+    geometry::{vector, Scalar, Vector},
+    utils::approx::ApproxEq,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ScaledRotation(Vector);

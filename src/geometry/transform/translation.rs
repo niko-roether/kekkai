@@ -1,8 +1,6 @@
 use std::ops::{Mul, MulAssign};
 
-use crate::utils::approx::ApproxEq;
-
-use super::Vector;
+use crate::{geometry::Vector, utils::approx::ApproxEq};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Translation(Vector);
