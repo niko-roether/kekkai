@@ -25,6 +25,10 @@ impl Point {
         other.0.sub(self.0)
     }
 
+    pub fn distance(self, other: Point) -> Scalar {
+        (other - self).norm()
+    }
+
     pub const fn add(self, vector: Vector) -> Point {
         Self(self.0.add(vector))
     }
@@ -104,7 +108,10 @@ impl Sub<Point> for Point {
 
 #[cfg(test)]
 mod tests {
-    use crate::{geometry::transform::Translation, utils::approx::assert_approx_eq};
+    use crate::{
+        geometry::{scalar, transform::Translation},
+        utils::approx::assert_approx_eq,
+    };
 
     use super::*;
 
@@ -153,6 +160,13 @@ mod tests {
     fn transform() {
         let mut p = Point::new(1.0, 2.0);
         p.transform(Translation::from(vector!(-1.0, -2.0)));
-        assert_eq!(p, Point::ORIGIN);
+        assert_approx_eq!(p, Point::ORIGIN);
+    }
+
+    #[test]
+    fn distance() {
+        let p1 = Point::new(1.0, 3.0);
+        let p2 = Point::new(2.0, 4.0);
+        assert_approx_eq!(p1.distance(p2), scalar::consts::SQRT_2);
     }
 }
