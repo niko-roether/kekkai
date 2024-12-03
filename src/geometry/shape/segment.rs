@@ -31,6 +31,24 @@ impl Segment {
         let closest_point = self.start + t_clamped * segment_vec;
         point.distance(closest_point)
     }
+
+    pub fn horizontal_ray_intersection_type(&self, ray_start: Point) -> i32 {
+        let intersection_t = (ray_start.y() - self.start.y()) / (self.end.y() - self.start.y());
+        if !(0.0..=1.0).contains(&intersection_t) {
+            return 0;
+        }
+
+        let intersection_x = self.start.x() + intersection_t * self.as_vector().x;
+        if intersection_x < ray_start.x() {
+            return 0;
+        }
+
+        if self.as_vector().y < 0.0 {
+            -1
+        } else {
+            1
+        }
+    }
 }
 
 impl ApproxEq for Segment {
@@ -98,6 +116,46 @@ mod tests {
     }
 
     #[test]
+    fn horizontal_ray_not_intersectingy() {
+        let p1 = Point::new(1.0, 2.0);
+        let p2 = Point::new(2.0, 3.0);
+        let segment = Segment::new(p1, p2);
+
+        let q = Point::new(1.5, 0.0);
+        assert_eq!(segment.horizontal_ray_intersection_type(q), 0);
+    }
+
+    #[test]
+    fn horizontal_ray_not_intersecting_x() {
+        let p1 = Point::new(1.0, 2.0);
+        let p2 = Point::new(2.0, 3.0);
+        let segment = Segment::new(p1, p2);
+
+        let q = Point::new(3.0, 2.5);
+        assert_eq!(segment.horizontal_ray_intersection_type(q), 0);
+    }
+
+    #[test]
+    fn horizontal_ray_intersecting_upwards() {
+        let p1 = Point::new(1.0, 2.0);
+        let p2 = Point::new(2.0, 3.0);
+        let segment = Segment::new(p1, p2);
+
+        let q = Point::new(1.5, 2.5);
+        assert_eq!(segment.horizontal_ray_intersection_type(q), 1);
+    }
+
+    #[test]
+    fn horizontal_ray_intersecting_downwards() {
+        let p1 = Point::new(2.0, 3.0);
+        let p2 = Point::new(1.0, 2.0);
+        let segment = Segment::new(p1, p2);
+
+        let q = Point::new(1.5, 2.5);
+        assert_eq!(segment.horizontal_ray_intersection_type(q), -1);
+    }
+
+    #[test]
     fn transform() {
         let p1 = Point::new(1.0, 2.0);
         let p2 = Point::new(2.0, 4.0);
@@ -117,5 +175,16 @@ mod tests {
         let q = Point::new(1.0, 3.0);
 
         b.iter(|| black_box(segment.distance_to_point(q)));
+    }
+
+    #[bench]
+    fn bench_horizontal_ray_intersection(b: &mut Bencher) {
+        let p1 = Point::new(1.0, 2.0);
+        let p2 = Point::new(2.0, 3.0);
+        let segment = Segment::new(p1, p2);
+
+        let q = Point::new(1.5, 2.5);
+
+        b.iter(|| black_box(segment.horizontal_ray_intersection_type(q)));
     }
 }
