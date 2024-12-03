@@ -50,6 +50,8 @@ impl Shape for Segment {
 
 #[cfg(test)]
 mod tests {
+    use test::{black_box, Bencher};
+
     use crate::{
         geometry::{scalar, transform::Translation, vector},
         utils::approx::assert_approx_eq,
@@ -86,6 +88,16 @@ mod tests {
     }
 
     #[test]
+    fn distance_to_end_point() {
+        let p1 = Point::new(1.0, 2.0);
+        let p2 = Point::new(2.0, 3.0);
+        let segment = Segment::new(p1, p2);
+
+        let q = Point::new(-1.0, 2.0);
+        assert_approx_eq!(segment.distance_to_point(q), 2.0);
+    }
+
+    #[test]
     fn transform() {
         let p1 = Point::new(1.0, 2.0);
         let p2 = Point::new(2.0, 4.0);
@@ -94,5 +106,16 @@ mod tests {
         segment.transform(Translation::new(1.0, 0.0));
         assert_approx_eq!(segment.start, Point::new(2.0, 2.0));
         assert_approx_eq!(segment.end, Point::new(3.0, 4.0));
+    }
+
+    #[bench]
+    fn bench_distance_to_point(b: &mut Bencher) {
+        let p1 = Point::new(1.0, 2.0);
+        let p2 = Point::new(2.0, 3.0);
+        let segment = Segment::new(p1, p2);
+
+        let q = Point::new(1.0, 3.0);
+
+        b.iter(|| black_box(segment.distance_to_point(q)));
     }
 }
