@@ -17,6 +17,14 @@ impl Point {
         Self(vector!(x, y))
     }
 
+    pub const fn x(self) -> Scalar {
+        self.0.x
+    }
+
+    pub const fn y(self) -> Scalar {
+        self.0.y
+    }
+
     pub const fn as_vector(self) -> Vector {
         self.0
     }
