@@ -1,6 +1,9 @@
 use std::ops::{Mul, MulAssign};
 
-use crate::{geometry::Vector, utils::approx::ApproxEq};
+use crate::{
+    geometry::{vector, Scalar, Vector},
+    utils::approx::ApproxEq,
+};
 
 use super::Transform;
 
@@ -8,9 +11,13 @@ use super::Transform;
 pub struct Translation(Vector);
 
 impl Translation {
-    pub const IDENT: Self = Self::new(Vector::ZERO);
+    pub const IDENT: Self = Self::new(0.0, 0.0);
 
-    pub const fn new(vector: Vector) -> Self {
+    pub const fn new(x: Scalar, y: Scalar) -> Self {
+        Self(vector!(x, y))
+    }
+
+    pub const fn from_vector(vector: Vector) -> Self {
         Self(vector)
     }
 
@@ -19,7 +26,7 @@ impl Translation {
     }
 
     pub const fn compose(self, other: Translation) -> Translation {
-        Self::new(Vector::add(self.0, other.0))
+        Self::from_vector(Vector::add(self.0, other.0))
     }
 
     pub const fn apply(self, vector: Vector) -> Vector {
@@ -35,7 +42,7 @@ impl From<Translation> for Vector {
 
 impl From<Vector> for Translation {
     fn from(value: Vector) -> Self {
-        Self::new(value)
+        Self::from_vector(value)
     }
 }
 
