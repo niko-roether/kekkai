@@ -1,5 +1,7 @@
+use std::ops::{Mul, MulAssign};
+
 use crate::{
-    geometry::{transform::Transform, Scalar, Vector},
+    geometry::{transform::Similarity, Scalar, Vector},
     utils::approx::ApproxEq,
 };
 
@@ -50,9 +52,9 @@ impl Segment {
         }
     }
 
-    pub fn transform(&mut self, t: impl Transform) {
-        self.start.transform(t.clone());
-        self.end.transform(t);
+    pub fn transform(&mut self, t: &Similarity) {
+        self.start *= t;
+        self.end *= t;
     }
 }
 
@@ -61,6 +63,21 @@ impl ApproxEq for Segment {
 
     fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         self.start.approx_eq(&other.start, epsilon) && self.end.approx_eq(&other.end, epsilon)
+    }
+}
+
+impl Mul<Segment> for &Similarity {
+    type Output = Segment;
+
+    fn mul(self, mut rhs: Segment) -> Self::Output {
+        rhs.transform(self);
+        rhs
+    }
+}
+
+impl MulAssign<&Similarity> for Segment {
+    fn mul_assign(&mut self, rhs: &Similarity) {
+        self.transform(rhs);
     }
 }
 
@@ -159,7 +176,7 @@ mod tests {
         let p2 = Point::new(2.0, 4.0);
         let mut segment = Segment::new(p1, p2);
 
-        segment.transform(Translation::new(1.0, 0.0));
+        segment *= &Translation::new(1.0, 0.0).into();
         assert_approx_eq!(segment.start, Point::new(2.0, 2.0));
         assert_approx_eq!(segment.end, Point::new(3.0, 4.0));
     }

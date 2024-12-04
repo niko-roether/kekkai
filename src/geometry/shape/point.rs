@@ -1,7 +1,7 @@
-use std::ops::{Add, AddAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 use crate::{
-    geometry::{transform::Transform, vector, Scalar, Vector},
+    geometry::{transform::Similarity, vector, Scalar, Vector},
     utils::approx::ApproxEq,
 };
 
@@ -43,8 +43,8 @@ impl Point {
         Self(self.0.sub(vector))
     }
 
-    pub fn transform(&mut self, t: impl Transform) {
-        *self = Self(t * self.0)
+    pub fn transform(&mut self, t: &Similarity) {
+        self.0 *= t;
     }
 }
 
@@ -110,6 +110,21 @@ impl Sub<Point> for Point {
     }
 }
 
+impl Mul<Point> for &Similarity {
+    type Output = Point;
+
+    fn mul(self, mut rhs: Point) -> Self::Output {
+        rhs.transform(self);
+        rhs
+    }
+}
+
+impl MulAssign<&Similarity> for Point {
+    fn mul_assign(&mut self, rhs: &Similarity) {
+        *self = rhs * *self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -163,7 +178,7 @@ mod tests {
     #[test]
     fn transform() {
         let mut p = Point::new(1.0, 2.0);
-        p.transform(Translation::from(vector!(-1.0, -2.0)));
+        p *= &Translation::from(vector!(-1.0, -2.0)).into();
         assert_approx_eq!(p, Point::ORIGIN);
     }
 

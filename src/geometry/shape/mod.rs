@@ -5,7 +5,7 @@ mod segment;
 
 use std::ops::{Mul, MulAssign};
 
-use super::{transform::Transform, Scalar};
+use super::{transform::Similarity, Scalar};
 
 pub use circle::*;
 pub use point::*;
@@ -18,10 +18,10 @@ pub enum Shape {
 }
 
 impl Shape {
-    pub fn transform(&mut self, t: impl Transform) {
+    pub fn transform(&mut self, t: &Similarity) {
         match self {
-            Self::Point(point) => point.transform(t),
-            Self::Segment(segment) => segment.transform(t),
+            Self::Point(point) => *point *= t,
+            Self::Segment(segment) => *segment *= t,
         }
     }
 
@@ -36,16 +36,16 @@ impl Shape {
     }
 }
 
-impl<T: Transform> MulAssign<T> for &mut Shape {
-    fn mul_assign(&mut self, rhs: T) {
+impl MulAssign<&Similarity> for &mut Shape {
+    fn mul_assign(&mut self, rhs: &Similarity) {
         self.transform(rhs);
     }
 }
 
-impl<T: Transform> Mul<T> for Shape {
+impl Mul<&Similarity> for Shape {
     type Output = Shape;
 
-    fn mul(mut self, rhs: T) -> Self::Output {
+    fn mul(mut self, rhs: &Similarity) -> Self::Output {
         self.transform(rhs);
         self
     }
