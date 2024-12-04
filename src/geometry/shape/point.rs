@@ -5,8 +5,6 @@ use crate::{
     utils::approx::ApproxEq,
 };
 
-use super::Shape;
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point(Vector);
 
@@ -44,6 +42,10 @@ impl Point {
     pub const fn sub(self, vector: Vector) -> Point {
         Self(self.0.sub(vector))
     }
+
+    pub fn transform(&mut self, t: impl Transform) {
+        *self = Self(t * self.0)
+    }
 }
 
 impl Default for Point {
@@ -57,12 +59,6 @@ impl ApproxEq for Point {
 
     fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         self.0.approx_eq(&other.0, epsilon)
-    }
-}
-
-impl Shape for Point {
-    fn transform(&mut self, t: impl Transform) {
-        *self = Self(t * self.0)
     }
 }
 

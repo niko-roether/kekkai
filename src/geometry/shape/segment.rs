@@ -3,7 +3,7 @@ use crate::{
     utils::approx::ApproxEq,
 };
 
-use super::{Point, Shape};
+use super::Point;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Segment {
@@ -49,6 +49,11 @@ impl Segment {
             1
         }
     }
+
+    pub fn transform(&mut self, t: impl Transform) {
+        self.start.transform(t.clone());
+        self.end.transform(t);
+    }
 }
 
 impl ApproxEq for Segment {
@@ -56,13 +61,6 @@ impl ApproxEq for Segment {
 
     fn approx_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         self.start.approx_eq(&other.start, epsilon) && self.end.approx_eq(&other.end, epsilon)
-    }
-}
-
-impl Shape for Segment {
-    fn transform(&mut self, t: impl Transform) {
-        self.start.transform(t.clone());
-        self.end.transform(t);
     }
 }
 
