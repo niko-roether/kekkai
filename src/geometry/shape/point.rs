@@ -5,8 +5,6 @@ use crate::{
     utils::approx::ApproxEq,
 };
 
-use super::{dist, Shape};
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point(Vector);
 
