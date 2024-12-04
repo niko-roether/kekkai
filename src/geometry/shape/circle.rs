@@ -1,4 +1,4 @@
-use crate::geometry::{transform::Transform, Scalar};
+use crate::geometry::{transform::Similarity, Scalar};
 
 use super::Point;
 
@@ -20,7 +20,8 @@ impl Circle {
         self.center.distance(point) - self.radius
     }
 
-    pub fn transform(&mut self, t: impl Transform) {
-        todo!("This doesn't work yet b/c we have no way of transforming the radius...")
+    pub fn transform(&mut self, t: &Similarity) {
+        self.center *= t;
+        self.radius *= t.scale();
     }
 }
