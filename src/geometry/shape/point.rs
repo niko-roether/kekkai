@@ -9,7 +9,7 @@ use crate::{
 pub struct Point(Vector);
 
 impl Point {
-    const ORIGIN: Self = Self::new(0.0, 0.0);
+    pub const ORIGIN: Self = Self::new(0.0, 0.0);
 
     pub const fn new(x: Scalar, y: Scalar) -> Self {
         Self(vector!(x, y))
