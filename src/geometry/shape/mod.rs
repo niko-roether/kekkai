@@ -23,7 +23,7 @@ impl Shape {
         }
     }
 
-    pub fn distance(&self, other: &Self) -> Scalar {
+    pub fn signed_distance(&self, other: &Self) -> Scalar {
         match (self, other) {
             (Self::Point(a), Self::Point(b)) => dist::point_to_point(*a, *b),
             (Self::Segment(s1), Self::Segment(s2)) => dist::segment_to_segment(s1, s2),
