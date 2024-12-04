@@ -1,3 +1,4 @@
+mod circle;
 mod dist;
 mod point;
 mod segment;
@@ -6,6 +7,7 @@ use std::ops::{Mul, MulAssign};
 
 use super::{transform::Transform, Scalar};
 
+pub use circle::*;
 pub use point::*;
 pub use segment::*;
 
