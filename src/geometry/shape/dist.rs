@@ -20,6 +20,8 @@ pub fn segment_to_segment(s1: &Segment, s2: &Segment) -> Scalar {
 
 #[cfg(test)]
 mod tests {
+    use test::{black_box, Bencher};
+
     use crate::utils::approx::assert_approx_eq;
 
     use super::*;
@@ -60,5 +62,29 @@ mod tests {
         let s1 = Segment::new(Point::new(1.0, 1.0), Point::new(2.0, 3.0));
         let s2 = Segment::new(Point::new(2.0, 2.0), Point::new(3.0, 4.0));
         assert_approx_eq!(super::segment_to_segment(&s1, &s2), 1.0 / Scalar::sqrt(5.0));
+    }
+
+    #[bench]
+    fn point_to_point_bench(b: &mut Bencher) {
+        let p1 = Point::new(1.0, 2.0);
+        let p2 = Point::new(3.0, 3.0);
+
+        b.iter(|| black_box(super::point_to_point(p1, p2)));
+    }
+
+    #[bench]
+    fn point_to_segment_bench(b: &mut Bencher) {
+        let p = Point::new(1.0, 2.0);
+        let s = Segment::new(Point::new(2.0, 1.0), Point::new(4.0, 2.0));
+
+        b.iter(|| black_box(super::point_to_segment(p, &s)));
+    }
+
+    #[bench]
+    fn segment_to_segment_bench(b: &mut Bencher) {
+        let s1 = Segment::new(Point::new(1.0, 1.0), Point::new(2.0, 3.0));
+        let s2 = Segment::new(Point::new(2.0, 2.0), Point::new(4.0, 3.0));
+
+        b.iter(|| black_box(super::segment_to_segment(&s1, &s2)));
     }
 }
