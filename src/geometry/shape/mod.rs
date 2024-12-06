@@ -1,3 +1,4 @@
+mod chain;
 mod circle;
 mod dist;
 mod point;
@@ -7,6 +8,7 @@ use std::ops::{Mul, MulAssign};
 
 use super::{transform::Similarity, Scalar};
 
+pub use chain::*;
 pub use circle::*;
 pub use point::*;
 pub use segment::*;

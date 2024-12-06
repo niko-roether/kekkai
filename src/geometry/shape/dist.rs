@@ -1,6 +1,6 @@
 use crate::geometry::Scalar;
 
-use super::{Point, Segment};
+use super::{Chain, Point, Segment};
 
 pub fn point_to_point(a: Point, b: Point) -> Scalar {
     (b - a).norm()
@@ -16,6 +16,10 @@ pub fn segment_to_segment(s1: &Segment, s2: &Segment) -> Scalar {
     let d3 = s2.distance_to_point(s1.start);
     let d4 = s2.distance_to_point(s1.end);
     d1.min(d2).min(d3).min(d4)
+}
+
+pub fn point_to_chain(p: Point, chain: &Chain) -> Scalar {
+    chain.distance_to_point(p)
 }
 
 #[cfg(test)]
@@ -86,5 +90,40 @@ mod tests {
         let s2 = Segment::new(Point::new(2.0, 2.0), Point::new(4.0, 3.0));
 
         b.iter(|| black_box(super::segment_to_segment(&s1, &s2)));
+    }
+
+    #[bench]
+    fn point_to_single_point_chain_bench(b: &mut Bencher) {
+        let p = Point::new(1.0, 2.0);
+        let c = Chain::from(Point::new(2.0, 1.0));
+
+        b.iter(|| black_box(super::point_to_chain(p, &c)));
+    }
+
+    #[bench]
+    fn point_to_single_segment_chain_bench(b: &mut Bencher) {
+        let p = Point::new(1.0, 2.0);
+        let c = Chain::from(Segment::new(Point::new(2.0, 1.0), Point::new(4.0, 2.0)));
+
+        b.iter(|| black_box(super::point_to_chain(p, &c)));
+    }
+
+    #[bench]
+    fn point_to_10_segment_chain_bench(b: &mut Bencher) {
+        let p = Point::new(1.0, 2.0);
+        let c = Chain::new(vec![
+            Point::new(1.0, 0.0),
+            Point::new(2.0, 0.0),
+            Point::new(3.0, 0.0),
+            Point::new(4.0, 0.0),
+            Point::new(5.0, 0.0),
+            Point::new(6.0, 0.0),
+            Point::new(7.0, 0.0),
+            Point::new(8.0, 0.0),
+            Point::new(9.0, 0.0),
+            Point::new(10.0, 0.0),
+        ]);
+
+        b.iter(|| black_box(super::point_to_chain(p, &c)));
     }
 }
