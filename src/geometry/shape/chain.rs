@@ -46,8 +46,7 @@ impl Chain {
     pub fn distance_to_point(&self, point: Point) -> Scalar {
         self.segments()
             .map(|s| s.distance_to_point(point))
-            .reduce(Scalar::min)
-            .unwrap_or(Scalar::INFINITY)
+            .fold(Scalar::INFINITY, Scalar::min)
     }
 
     pub fn transform(&mut self, t: &Similarity) {
