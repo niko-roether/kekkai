@@ -22,6 +22,18 @@ pub fn point_to_chain(p: Point, chain: &Chain) -> Scalar {
     chain.distance_to_point(p)
 }
 
+pub fn segment_to_chain(s: &Segment, c: &Chain) -> Scalar {
+    c.segments()
+        .map(|cs| segment_to_segment(s, &cs))
+        .fold(Scalar::INFINITY, Scalar::min)
+}
+
+pub fn chain_to_chain(c1: &Chain, c2: &Chain) -> Scalar {
+    c1.segments()
+        .map(|s| segment_to_chain(&s, c2))
+        .fold(Scalar::INFINITY, Scalar::min)
+}
+
 #[cfg(test)]
 mod tests {
     use test::{black_box, Bencher};
@@ -66,6 +78,21 @@ mod tests {
         let s1 = Segment::new(Point::new(1.0, 1.0), Point::new(2.0, 3.0));
         let s2 = Segment::new(Point::new(2.0, 2.0), Point::new(3.0, 4.0));
         assert_approx_eq!(super::segment_to_segment(&s1, &s2), 1.0 / Scalar::sqrt(5.0));
+    }
+
+    #[test]
+    fn point_to_chain() {
+        todo!()
+    }
+
+    #[test]
+    fn segment_to_chain() {
+        todo!()
+    }
+
+    #[test]
+    fn chain_to_chain() {
+        todo!()
     }
 
     #[bench]
