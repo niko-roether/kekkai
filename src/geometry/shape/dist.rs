@@ -82,17 +82,43 @@ mod tests {
 
     #[test]
     fn point_to_chain() {
-        todo!()
+        let p = Point::new(3.0, 2.0);
+        let c = Chain::new(vec![
+            Point::new(3.0, 0.0),
+            Point::new(2.0, 1.0),
+            Point::new(4.0, 2.0),
+            Point::new(1.0, -1.0),
+        ]);
+        assert_approx_eq!(super::point_to_chain(p, &c), 1.0 / Scalar::sqrt(5.0));
     }
 
     #[test]
     fn segment_to_chain() {
-        todo!()
+        let s = Segment::new(Point::new(1.0, 1.0), Point::new(2.0, 3.0));
+        let c = Chain::new(vec![
+            Point::new(1.0, 4.0),
+            Point::new(2.0, 2.0),
+            Point::new(4.0, 3.0),
+            Point::new(5.0, 2.0),
+        ]);
+        assert_approx_eq!(super::segment_to_chain(&s, &c), 1.0 / Scalar::sqrt(5.0));
     }
 
     #[test]
     fn chain_to_chain() {
-        todo!()
+        let c1 = Chain::new(vec![
+            Point::new(-1.0, -2.0),
+            Point::new(1.0, 1.0),
+            Point::new(2.0, 3.0),
+            Point::new(-1.0, 3.0),
+        ]);
+        let c2 = Chain::new(vec![
+            Point::new(1.0, 4.0),
+            Point::new(2.0, 2.0),
+            Point::new(4.0, 3.0),
+            Point::new(5.0, 2.0),
+        ]);
+        assert_approx_eq!(super::chain_to_chain(&c1, &c2), 1.0 / Scalar::sqrt(5.0));
     }
 
     #[bench]
